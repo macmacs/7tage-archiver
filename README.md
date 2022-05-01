@@ -1,11 +1,11 @@
-# FM4 Show Archiver - 7Tage
+# Show Archiver - 7Tage
 
 Downloads the last aired show to an `mp3` file and tags it with info and image.
 
 ```bash
 Usage of bin/fm4-archiver:
   -out-base-dir string
-        Location of your FM4/Sendungen (default "/music")
+        Location of your shows (default "/music")
   -progress
         Print progress
   -show string
@@ -17,7 +17,7 @@ Usage of bin/fm4-archiver:
 Run e.g.
 
 ```bash
-$ fm4-archiver -show "Graue Lagune" -out-base-dir . -progress
+$ 7tage-archiver -show "Graue Lagune" -out-base-dir . -progress
 ```
 
 Result:
@@ -45,7 +45,7 @@ Description: Front cover
 ```bash
 docker run --rm \
   -v /your/fm4/shows/folder/:/music \
-  ghcr.io/macmacs/fm4-archiver \
+  ghcr.io/macmacs/7tage-archiver \
   -show "Graue Lagune" \
   -progress
 ```

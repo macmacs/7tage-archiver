@@ -21,8 +21,8 @@ jobs:
 
       - name: Build
         run: |
-          CGO_ENABLED=0 GOOS=linux  GOARCH=amd64 go build -v -o bin/fm4-archiver cmd/*
-          CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -v -o bin/fm4-archiver-mac cmd/*
+          CGO_ENABLED=0 GOOS=linux  GOARCH=amd64 go build -v -o bin/7tage-archiver cmd/*
+          CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -v -o bin/7tage-archiver-mac cmd/*
 
       - uses: ncipollo/release-action@v1
         with:
@@ -50,7 +50,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v3
         with:
-          images: ghcr.io/macmacs/fm4-archiver
+          images: ghcr.io/macmacs/7tage-archiver
           labels: "${GITHUB_REF#refs/*/}"
 
       - name: Build and push

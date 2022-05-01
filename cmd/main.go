@@ -19,7 +19,7 @@ import (
 func main() {
 
 	searchTermPtr := flag.String("show", "Davidecks", "A FM4 Show")
-	destDirPtr := flag.String("out-base-dir", "/music", "Location of your FM4/Sendungen")
+	destDirPtr := flag.String("out-base-dir", "/music", "Location of your shows")
 	progressPtr := flag.Bool("progress", false, "Print progress")
 
 	flag.Parse()
