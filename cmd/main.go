@@ -20,7 +20,7 @@ import (
 func main() {
 
 	searchTermPtr := flag.String("show", "Davidecks", "A FM4 Show")
-	destDirPtr := flag.String("out-base-dir", "/path/to/save/all/your/shows/to/", "FM4/Sendungen")
+	destDirPtr := flag.String("out-base-dir", "/music", "Location of your FM4/Sendungen")
 	progressPtr := flag.Bool("progress", false, "Print progress")
 
 	flag.Parse()
@@ -228,6 +228,8 @@ func DownloadFile(url string, outDir string, filename string, progressPtr *bool,
 		i++
 	}
 
+	log.Printf("File size: %.2f Mb", contentLength/1024/1024)
+
 	done := make(chan int64)
 
 	if *progressPtr {
@@ -259,7 +261,6 @@ func getContentLength(url string, err error) string {
 	defer headResp.Body.Close()
 
 	var contentLength = headResp.Header.Get("Content-Length")
-	log.Printf("File size: %s", contentLength)
 	return contentLength
 }
 
