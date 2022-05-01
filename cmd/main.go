@@ -109,10 +109,10 @@ func writeId3Tag(mp3path string, imagePath string, show Show) {
 	if err != nil {
 		log.Fatal("Error while opening mp3 file: ", err)
 	}
-	defer tag.Close()
 
-	tag.SetTitle(show.Title)
+	tag.SetTitle(fmt.Sprintf("%s - %s", show.Title, show.BroadcastDay))
 	tag.SetAlbum(show.Year)
+	tag.SetArtist(show.Title)
 	tag.SetYear(show.Year)
 
 	artwork, err := ioutil.ReadFile(imagePath)
@@ -133,9 +133,9 @@ func writeId3Tag(mp3path string, imagePath string, show Show) {
 		Encoding: id3v2.EncodingUTF8,
 		Text:     show.Title,
 	}
-	tag.AddFrame(tag.CommonID("albumartist"), textFrame)
+	tag.AddFrame(tag.CommonID("TPE2"), textFrame)
 
-	time.Sleep(time.Millisecond * 500)
+	defer tag.Close()
 
 	err = tag.Save()
 	logError(err)
