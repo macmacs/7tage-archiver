@@ -14,7 +14,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"time"
 )
 
 func main() {
@@ -43,8 +42,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	hrefs := []string{}
 
 	for _, hit := range parsedSearchResult.Hits {
 		response, err := http.Get(hit.Data.Href)
@@ -78,11 +75,7 @@ func main() {
 			imagePath := saveImage(destDirPtr, show, progressPtr)
 			writeId3Tag(mp3Path, imagePath, show)
 		}
-
 	}
-
-	fmt.Println(hrefs)
-
 }
 
 func getTitle(hit Hits) string {
@@ -135,7 +128,12 @@ func writeId3Tag(mp3path string, imagePath string, show Show) {
 	}
 	tag.AddFrame(tag.CommonID("TPE2"), textFrame)
 
-	defer tag.Close()
+	defer func(tag *id3v2.Tag) {
+		err := tag.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}(tag)
 
 	err = tag.Save()
 	logError(err)
@@ -163,102 +161,17 @@ func getDownloadUrl(show Show) string {
 	return shoutcastBaseUrl + show.Streams[0].LoopStreamID
 }
 
-func PrintDownloadPercent(done chan int64, path string, total int64, interval int) {
-	var stop bool = false
-	file, err := os.Open(path)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer file.Close()
-	for {
-		select {
-		case <-done:
-			stop = true
-		default:
-			fi, err := file.Stat()
-			if err != nil {
-				log.Fatal(err)
-			}
-
-			size := fi.Size()
-			if size == 0 {
-				size = 1
-			}
-
-			var percent float64 = float64(size) / float64(total) * 100
-			fmt.Printf("%.0f", percent)
-			fmt.Print("% ")
-		}
-
-		if stop {
-			break
-		}
-		time.Sleep(time.Millisecond * time.Duration(interval))
-	}
-}
-
-func DownloadFile(url string, outDir string, filename string, progressPtr *bool, interval int) string {
-
-	log.Printf("Downloading file %s.", filename)
-
-	err := makeDirectoryIfNotExisting(outDir)
-	logErrorAndExit(err, 7)
-
-	var path = outDir + "/" + filename
-
-	fileIsExisting, err := fileExists(path)
-	logError(err)
-
-	if fileIsExisting {
-		log.Println("File " + path + " already exists. Skipping download.")
-		return path
-	}
-
-	out, err := os.Create(path)
-
-	start := time.Now()
-	logError(err)
-
-	defer out.Close()
-	contentLength := -2.0
-	i := 0
-	for contentLength < 0 && i < 5 {
-		contentLengthString := getContentLength(url, err)
-		contentLength, _ = strconv.ParseFloat(contentLengthString, 64)
-		i++
-	}
-
-	log.Printf("File size: %.2f Mb", contentLength/1024/1024)
-
-	done := make(chan int64)
-
-	if *progressPtr {
-		go PrintDownloadPercent(done, path, int64(contentLength), interval)
-	}
-
-	resp, err := http.Get(url)
-
-	logErrorAndExit(err, 4)
-
-	defer resp.Body.Close()
-
-	n, err := io.Copy(out, resp.Body)
-
-	logErrorAndExit(err, 5)
-
-	done <- n
-
-	elapsed := time.Since(start)
-	log.Println("Download completed in %s.", elapsed)
-	return path
-}
-
 func getContentLength(url string, err error) string {
 	headResp, err := http.Head(url)
 
-	logErrorAndExit(err, 2)
+	logError(err)
 
-	defer headResp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}(headResp.Body)
 
 	var contentLength = headResp.Header.Get("Content-Length")
 	return contentLength
@@ -267,13 +180,6 @@ func getContentLength(url string, err error) string {
 func logError(err error) {
 	if err != nil {
 		log.Fatal(err)
-	}
-}
-
-func logErrorAndExit(err error, code int) {
-	if err != nil {
-		log.Fatal(err)
-		os.Exit(code)
 	}
 }
 
