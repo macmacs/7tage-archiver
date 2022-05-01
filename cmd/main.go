@@ -5,8 +5,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	id3 "github.com/mikkyang/id3-go"
-	v2 "github.com/mikkyang/id3-go/v2"
+	"github.com/bogem/id3v2"
 	"io"
 	"io/ioutil"
 	"log"
@@ -17,12 +16,6 @@ import (
 	"strings"
 	"time"
 )
-
-type Show struct {
-	Title       string
-	Description string
-	Start       string
-}
 
 func main() {
 
@@ -53,32 +46,37 @@ func main() {
 
 	hrefs := []string{}
 
-	for i, h := range parsedSearchResult.Hits {
-		fmt.Println(i, h.Data.Href)
-		response, err := http.Get(h.Data.Href)
-		if err != nil {
-			fmt.Print(err.Error())
-			os.Exit(1)
-		}
+	for _, hit := range parsedSearchResult.Hits {
+		response, err := http.Get(hit.Data.Href)
+		logError(err)
+
 		responseData, err := ioutil.ReadAll(response.Body)
-		if err != nil {
-			log.Fatal(err)
-		}
+		logError(err)
+
 		parsedItemResult := ItemResult{}
 		err = json.Unmarshal(responseData, &parsedItemResult)
-		if err != nil {
-			log.Fatal(err)
+		logError(err)
+
+		show := Show{
+			Title:          getTitle(hit),
+			TitleSanitized: sanitize(getTitle(hit)),
+			Description:    hit.Data.Subtitle,
+			BroadcastDay:   strconv.Itoa(hit.Data.BroadcastDay),
+			Images:         hit.Data.Images,
+			Streams:        parsedItemResult.Streams,
+			Year:           getYear(parsedItemResult),
 		}
 
 		if len(parsedItemResult.Streams) > 0 {
-			var shoutcastBaseUrl = "https://loopstream01.apa.at/?channel=fm4&id="
-			path := DownloadFile(getDownloadUrl(shoutcastBaseUrl, parsedItemResult),
-				getOutputPath(destDirPtr, parsedItemResult),
-				getFileName(h, parsedItemResult),
-				progressPtr)
+			mp3Path := DownloadFile(
+				getDownloadUrl(show),
+				getOutputPath(destDirPtr, show),
+				getFileName(show),
+				progressPtr,
+				10000)
 
-			writeId3Tag(path, parsedItemResult)
-			saveImage(destDirPtr, parsedItemResult, progressPtr)
+			imagePath := saveImage(destDirPtr, show, progressPtr)
+			writeId3Tag(mp3Path, imagePath, show)
 		}
 
 	}
@@ -87,53 +85,85 @@ func main() {
 
 }
 
-func saveImage(path *string, result ItemResult, ptr *bool) {
+func getTitle(hit Hits) string {
+	return strings.TrimSpace(hit.Data.Title)
+}
+
+func sanitize(value string) string {
+	return strings.Replace(strings.TrimSpace(value), " ", "_", -1)
+}
+
+func saveImage(path *string, show Show, ptr *bool) string {
 	var imageUrl string
-	for _, v := range result.Images[0].Versions {
+	for _, v := range show.Images[0].Versions {
 		if v.Width == 434 {
 			imageUrl = v.Path
 		}
 	}
-	DownloadFile(imageUrl, getOutputPath(path, result), "cover.jpg", ptr)
+	return DownloadFile(imageUrl, getOutputPath(path, show), "cover.jpg", ptr, 500)
 }
 
-func writeId3Tag(path string, parsedItemResult ItemResult) {
+func writeId3Tag(mp3path string, imagePath string, show Show) {
 
-	log.Println("Tagging mp4 file ...")
-	mp3File, err := id3.Open(path)
+	tag, err := id3v2.Open(mp3path, id3v2.Options{Parse: false})
+	if err != nil {
+		log.Fatal("Error while opening mp3 file: ", err)
+	}
+	defer tag.Close()
+
+	tag.SetTitle(show.Title)
+	tag.SetAlbum(show.Year)
+	tag.SetYear(show.Year)
+
+	artwork, err := ioutil.ReadFile(imagePath)
+	if err != nil {
+		log.Fatal("Error while reading artwork file", err)
+	}
+
+	pic := id3v2.PictureFrame{
+		Encoding:    id3v2.EncodingUTF8,
+		MimeType:    "image/jpeg",
+		PictureType: id3v2.PTFrontCover,
+		Description: "Front cover",
+		Picture:     artwork,
+	}
+	tag.AddAttachedPicture(pic)
+
+	textFrame := id3v2.TextFrame{
+		Encoding: id3v2.EncodingUTF8,
+		Text:     show.Title,
+	}
+	tag.AddFrame(tag.CommonID("albumartist"), textFrame)
+
+	time.Sleep(time.Millisecond * 500)
+
+	err = tag.Save()
 	logError(err)
-
-	mp3File.SetArtist(parsedItemResult.Title)
-	mp3File.SetAlbum(getYear(parsedItemResult))
-	ft := v2.V23FrameTypeMap["TPE2"]
-	textFrame := v2.NewTextFrame(ft, parsedItemResult.Title)
-	mp3File.AddFrames(textFrame)
-
-	defer mp3File.Close()
 }
 
 func getYear(parsedItemResult ItemResult) string {
 	return strconv.Itoa(parsedItemResult.StartISO.Year())
 }
 
-func getFileName(h Hits, parsedItemResult ItemResult) string {
+func getFileName(show Show) string {
 	return fmt.Sprintf("%s_%s.mp3",
-		strings.Replace(parsedItemResult.Title, " ", "_", -1),
-		strconv.Itoa(parsedItemResult.BroadcastDay))
+		show.TitleSanitized,
+		show.BroadcastDay)
 }
 
-func getOutputPath(destDirPtr *string, parsedItemResult ItemResult) string {
+func getOutputPath(destDirPtr *string, show Show) string {
 	return fmt.Sprintf("%s/%s/%s",
 		*destDirPtr,
-		strings.Replace(parsedItemResult.Title, " ", "_", -1),
-		getYear(parsedItemResult))
+		show.TitleSanitized,
+		show.Year)
 }
 
-func getDownloadUrl(shoutcastBaseUrl string, parsedItemResult ItemResult) string {
-	return shoutcastBaseUrl + parsedItemResult.Streams[0].LoopStreamID
+func getDownloadUrl(show Show) string {
+	var shoutcastBaseUrl = "https://loopstream01.apa.at/?channel=fm4&id="
+	return shoutcastBaseUrl + show.Streams[0].LoopStreamID
 }
 
-func PrintDownloadPercent(done chan int64, path string, total int64) {
+func PrintDownloadPercent(done chan int64, path string, total int64, interval int) {
 	var stop bool = false
 	file, err := os.Open(path)
 	if err != nil {
@@ -163,15 +193,16 @@ func PrintDownloadPercent(done chan int64, path string, total int64) {
 		if stop {
 			break
 		}
-		time.Sleep(time.Second * 10)
+		time.Sleep(time.Millisecond * time.Duration(interval))
 	}
 }
 
-func DownloadFile(url string, outDir string, filename string, progressPtr *bool) string {
+func DownloadFile(url string, outDir string, filename string, progressPtr *bool, interval int) string {
 
 	log.Printf("Downloading file %s.", filename)
 
-	makeDirectoryIfNotExisting(outDir)
+	err := makeDirectoryIfNotExisting(outDir)
+	logErrorAndExit(err, 7)
 
 	var path = outDir + "/" + filename
 
@@ -189,21 +220,18 @@ func DownloadFile(url string, outDir string, filename string, progressPtr *bool)
 	logError(err)
 
 	defer out.Close()
-
-	headResp, err := http.Head(url)
-
-	logErrorAndExit(err, 2)
-
-	defer headResp.Body.Close()
-
-	size, err := strconv.Atoi(headResp.Header.Get("Content-Length"))
-
-	logErrorAndExit(err, 3)
+	contentLength := -2.0
+	i := 0
+	for contentLength < 0 && i < 5 {
+		contentLengthString := getContentLength(url, err)
+		contentLength, _ = strconv.ParseFloat(contentLengthString, 64)
+		i++
+	}
 
 	done := make(chan int64)
 
 	if *progressPtr {
-		go PrintDownloadPercent(done, path, int64(size))
+		go PrintDownloadPercent(done, path, int64(contentLength), interval)
 	}
 
 	resp, err := http.Get(url)
@@ -223,6 +251,18 @@ func DownloadFile(url string, outDir string, filename string, progressPtr *bool)
 	return path
 }
 
+func getContentLength(url string, err error) string {
+	headResp, err := http.Head(url)
+
+	logErrorAndExit(err, 2)
+
+	defer headResp.Body.Close()
+
+	var contentLength = headResp.Header.Get("Content-Length")
+	log.Printf("File size: %s", contentLength)
+	return contentLength
+}
+
 func logError(err error) {
 	if err != nil {
 		log.Fatal(err)
@@ -238,7 +278,7 @@ func logErrorAndExit(err error, code int) {
 
 func makeDirectoryIfNotExisting(path string) error {
 	if _, err := os.Stat(path); os.IsNotExist(err) {
-		return os.Mkdir(path, os.ModeDir|0755)
+		return os.MkdirAll(path, os.ModeDir|0755)
 	}
 	return nil
 }
