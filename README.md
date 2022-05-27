@@ -1,6 +1,6 @@
-# Show Archiver - 7Tage
+# Radio Show Archiver - 7Tage
 
-Downloads the last aired show to an `mp3` file and tags it with info and image.
+Archives the last aired show to an `mp3` file and tags it with info and image.
 
 ```bash
 Usage of bin/fm4-archiver:
@@ -9,7 +9,7 @@ Usage of bin/fm4-archiver:
   -progress
         Print progress
   -show string
-        A FM4 Show (default "Davidecks")
+        A Radio FM4 Show (default "Davidecks")
 ```
 
 ## CLI

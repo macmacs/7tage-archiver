@@ -108,6 +108,8 @@ func writeId3Tag(mp3path string, imagePath string, show Show) {
 	tag.SetArtist(show.Title)
 	tag.SetYear(show.Year)
 
+	//log.Printf("Setting tag %s", tag)
+
 	artwork, err := ioutil.ReadFile(imagePath)
 	if err != nil {
 		log.Fatal("Error while reading artwork file", err)
@@ -121,6 +123,8 @@ func writeId3Tag(mp3path string, imagePath string, show Show) {
 		Picture:     artwork,
 	}
 	tag.AddAttachedPicture(pic)
+
+	log.Println("Attached cover.")
 
 	textFrame := id3v2.TextFrame{
 		Encoding: id3v2.EncodingUTF8,
