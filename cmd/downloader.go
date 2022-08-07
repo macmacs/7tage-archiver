@@ -51,7 +51,7 @@ func PrintDownloadPercent(done chan int64, path string, total int64, interval in
 }
 
 func DownloadFile(url string, outDir string, filename string, progressPtr *bool, interval int) string {
-	log.Printf("Downloading file %s.\n", filename)
+	log.Printf("Downloading file %s from %s.\n", filename, url)
 
 	err := makeDirectoryIfNotExisting(outDir)
 	logError(err)

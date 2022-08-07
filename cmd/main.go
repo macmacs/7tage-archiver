@@ -88,12 +88,17 @@ func sanitize(value string) string {
 
 func saveImage(path *string, show Show, ptr *bool) string {
 	var imageUrl string
-	for _, v := range show.Images[0].Versions {
-		if v.Width == 434 {
-			imageUrl = v.Path
+	if show.Images != nil && len(show.Images) > 0 {
+		for _, v := range show.Images[0].Versions {
+			if v.Width == 434 {
+				imageUrl = v.Path
+				return DownloadFile(imageUrl, getOutputPath(path, show), "cover.jpg", ptr, 500)
+			}
 		}
+	} else {
+		log.Println("No Cover images returned.")
 	}
-	return DownloadFile(imageUrl, getOutputPath(path, show), "cover.jpg", ptr, 500)
+	return ""
 }
 
 func writeId3Tag(mp3path string, imagePath string, show Show) {
@@ -110,21 +115,25 @@ func writeId3Tag(mp3path string, imagePath string, show Show) {
 
 	//log.Printf("Setting tag %s", tag)
 
-	artwork, err := ioutil.ReadFile(imagePath)
-	if err != nil {
-		log.Fatal("Error while reading artwork file", err)
-	}
+	if imagePath != "" {
+		artwork, err := ioutil.ReadFile(imagePath)
+		if err != nil {
+			log.Println("Error while reading artwork file", err)
+		}
 
-	pic := id3v2.PictureFrame{
-		Encoding:    id3v2.EncodingUTF8,
-		MimeType:    "image/jpeg",
-		PictureType: id3v2.PTFrontCover,
-		Description: "Front cover",
-		Picture:     artwork,
-	}
-	tag.AddAttachedPicture(pic)
+		pic := id3v2.PictureFrame{
+			Encoding:    id3v2.EncodingUTF8,
+			MimeType:    "image/jpeg",
+			PictureType: id3v2.PTFrontCover,
+			Description: "Front cover",
+			Picture:     artwork,
+		}
+		tag.AddAttachedPicture(pic)
 
-	log.Println("Attached cover.")
+		log.Println("Attached cover.")
+	} else {
+		log.Println("No cover url provided. Skipped image tag.")
+	}
 
 	textFrame := id3v2.TextFrame{
 		Encoding: id3v2.EncodingUTF8,
