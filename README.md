@@ -4,12 +4,18 @@ Archives the last aired show to an `mp3` file and tags it with info and image.
 
 ```bash
 Usage of bin/fm4-archiver:
+
+download
   -out-base-dir string
         Location of your shows (default "/music")
   -progress
         Print progress
   -show string
         A Radio FM4 Show (default "Davidecks")
+        
+search
+  -query string
+        Search show by query
 ```
 
 ## CLI
@@ -17,7 +23,7 @@ Usage of bin/fm4-archiver:
 Run e.g.
 
 ```bash
-$ 7tage-archiver -show "Graue Lagune" -out-base-dir . -progress
+$ 7tage-archiver download -show "Graue Lagune" -out-base-dir . -progress
 ```
 
 Result:
@@ -46,6 +52,7 @@ Description: Front cover
 docker run --rm \
   -v /your/fm4/shows/folder/:/music \
   ghcr.io/macmacs/7tage-archiver \
+  download \
   -show "Graue Lagune" \
   -progress
 ```
