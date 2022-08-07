@@ -25,7 +25,6 @@ func main() {
 	downloadCmd := flag.NewFlagSet("download", flag.ExitOnError)
 	showPtr := downloadCmd.String("show", "Davidecks", "Show name")
 	destDirPtr := downloadCmd.String("out-base-dir", "./music", "Location of your shows")
-	progressPtr := downloadCmd.Bool("progress", false, "Print progress")
 
 	if len(os.Args) < 2 {
 		fmt.Println("expected 'download' or 'search' subcommands")
@@ -39,9 +38,8 @@ func main() {
 		log.Println("subcommand 'download'")
 		log.Println("  show:", *showPtr)
 		log.Println("  out-base-dir:", *destDirPtr)
-		log.Println("  progress:", *progressPtr)
 		log.Println("  tail:", downloadCmd.Args())
-		Download(*showPtr, *destDirPtr, progressPtr)
+		Download(*showPtr, *destDirPtr)
 	case "search":
 		_ = searchCmd.Parse(os.Args[2:])
 		log.Printf("Searching for '%s' ...\n\n", *searchQuery)
@@ -52,7 +50,7 @@ func main() {
 	}
 }
 
-func Download(showSearch string, destDir string, progress *bool) {
+func Download(showSearch string, destDir string) {
 
 	broadcastUrl := SearchBroadcastUrl(showSearch)
 	broadcast := getBroadcast(broadcastUrl)
@@ -63,11 +61,9 @@ func Download(showSearch string, destDir string, progress *bool) {
 		mp3Path := DownloadFile(
 			getDownloadUrl(show),
 			getOutputPath(destDir, show),
-			getFileName(show),
-			progress,
-			10000)
+			getFileName(show))
 
-		imagePath := saveImage(destDir, show, progress)
+		imagePath := saveImage(destDir, show)
 		writeId3Tag(mp3Path, imagePath, show)
 	} else {
 		log.Println("No streams found. Skipped download.")
@@ -159,13 +155,13 @@ func sanitize(value string) string {
 	return strings.Replace(strings.TrimSpace(value), " ", "_", -1)
 }
 
-func saveImage(path string, show Show, progress *bool) string {
+func saveImage(path string, show Show) string {
 	var imageUrl string
 	if show.Images != nil && len(show.Images) > 0 {
 		for _, v := range show.Images[0].Versions {
 			if v.Width == 434 {
 				imageUrl = v.Path
-				return DownloadFile(imageUrl, getOutputPath(path, show), "cover.jpg", progress, 1000)
+				return DownloadFile(imageUrl, getOutputPath(path, show), "cover.jpg")
 			}
 		}
 	} else {

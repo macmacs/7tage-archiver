@@ -8,8 +8,6 @@ Usage of bin/fm4-archiver:
 download
   -out-base-dir string
         Location of your shows (default "/music")
-  -progress
-        Print progress
   -show string
         A Radio FM4 Show (default "Davidecks")
         
@@ -23,7 +21,7 @@ search
 Run e.g.
 
 ```bash
-$ 7tage-archiver download -show "Graue Lagune" -out-base-dir . -progress
+$ 7tage-archiver download -show "Graue Lagune" -out-base-dir .
 ```
 
 Result:
@@ -53,6 +51,5 @@ docker run --rm \
   -v /your/fm4/shows/folder/:/music \
   ghcr.io/macmacs/7tage-archiver \
   download \
-  -show "Graue Lagune" \
-  -progress
+  -show "Graue Lagune"
 ```

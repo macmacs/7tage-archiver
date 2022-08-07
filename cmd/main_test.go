@@ -135,8 +135,7 @@ func TestDownloadFile(t *testing.T) {
 			return resp, nil
 		})
 
-	progress := true
-	got := DownloadFile(broadcastUrl, outDir, "fileName.mp3", &progress, 1000)
+	got := DownloadFile(broadcastUrl, outDir, "fileName.mp3")
 	want := path.Join(outDir, "fileName.mp3")
 
 	if got != want {
@@ -183,15 +182,14 @@ func TestSaveImage(t *testing.T) {
 			return resp, nil
 		})
 
-	progress := true
-	got := saveImage(imageDir, show, &progress)
+	got := saveImage(imageDir, show)
 	want := "/title/2022/cover.jpg"
 
 	if !strings.Contains(got, want) {
 		t.Errorf("got %q want %q", got, want)
 	}
 
-	got2 := saveImage(imageDir, show, &progress)
+	got2 := saveImage(imageDir, show)
 	want2 := "/title/2022/cover.jpg"
 
 	if !strings.Contains(got2, want2) {
