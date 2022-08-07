@@ -3,7 +3,7 @@ package main
 
 import "time"
 
-type ItemResult struct {
+type Broadcast struct {
 	Href                 string        `json:"href"`
 	Station              string        `json:"station"`
 	Entity               string        `json:"entity"`
@@ -13,7 +13,7 @@ type ItemResult struct {
 	Program              string        `json:"program"`
 	Title                string        `json:"title"`
 	Subtitle             string        `json:"subtitle"`
-	Ressort              interface{}   `json:"ressort"`
+	Ressort              string        `json:"ressort"`
 	State                string        `json:"state"`
 	IsOnDemand           bool          `json:"isOnDemand"`
 	IsGeoProtected       bool          `json:"isGeoProtected"`
@@ -33,9 +33,9 @@ type ItemResult struct {
 	NiceTime             int64         `json:"niceTime"`
 	NiceTimeISO          time.Time     `json:"niceTimeISO"`
 	NiceTimeOffset       int           `json:"niceTimeOffset"`
-	Description          interface{}   `json:"description"`
+	Description          string        `json:"description"`
 	PressRelease         string        `json:"pressRelease"`
-	Moderator            interface{}   `json:"moderator"`
+	Moderator            string        `json:"moderator"`
 	URL                  string        `json:"url"`
 	Images               []Images      `json:"images"`
 	Tags                 []interface{} `json:"tags"`
@@ -44,7 +44,20 @@ type ItemResult struct {
 	Streams              []Streams     `json:"streams"`
 	Marks                []Marks       `json:"marks"`
 }
-
+type Versions struct {
+	Path     string `json:"path"`
+	Width    int    `json:"width"`
+	HashCode int    `json:"hashCode"`
+}
+type Images struct {
+	Alt       string     `json:"alt"`
+	Mode      string     `json:"mode"`
+	Text      string     `json:"text"`
+	Category  string     `json:"category"`
+	HashCode  int        `json:"hashCode"`
+	Versions  []Versions `json:"versions"`
+	Copyright string     `json:"copyright"`
+}
 type Items struct {
 	Href           string        `json:"href"`
 	Station        string        `json:"station"`
@@ -54,7 +67,7 @@ type Items struct {
 	ProgramKey     string        `json:"programKey"`
 	Program        string        `json:"program"`
 	Type           string        `json:"type"`
-	Description    interface{}   `json:"description"`
+	Description    string        `json:"description"`
 	State          string        `json:"state"`
 	IsOnDemand     bool          `json:"isOnDemand"`
 	IsGeoProtected bool          `json:"isGeoProtected"`
@@ -65,8 +78,8 @@ type Items struct {
 	SongID         interface{}   `json:"songId"`
 	IsAdFree       bool          `json:"isAdFree"`
 	Title          string        `json:"title,omitempty"`
-	Subtitle       interface{}   `json:"subtitle,omitempty"`
-	Moderator      interface{}   `json:"moderator,omitempty"`
+	Subtitle       string        `json:"subtitle,omitempty"`
+	Moderator      string        `json:"moderator,omitempty"`
 	Start          int64         `json:"start"`
 	StartISO       time.Time     `json:"startISO"`
 	StartOffset    int           `json:"startOffset"`
@@ -75,15 +88,15 @@ type Items struct {
 	EndOffset      int           `json:"endOffset"`
 }
 type Streams struct {
-	Alias        string      `json:"alias"`
-	Title        interface{} `json:"title"`
-	LoopStreamID string      `json:"loopStreamId"`
-	Start        int64       `json:"start"`
-	StartISO     time.Time   `json:"startISO"`
-	StartOffset  int         `json:"startOffset"`
-	End          int64       `json:"end"`
-	EndISO       time.Time   `json:"endISO"`
-	EndOffset    int         `json:"endOffset"`
+	Alias        string    `json:"alias"`
+	Title        string    `json:"title"`
+	LoopStreamID string    `json:"loopStreamId"`
+	Start        int64     `json:"start"`
+	StartISO     time.Time `json:"startISO"`
+	StartOffset  int       `json:"startOffset"`
+	End          int64     `json:"end"`
+	EndISO       time.Time `json:"endISO"`
+	EndOffset    int       `json:"endOffset"`
 }
 type Marks struct {
 	Type            string    `json:"type"`

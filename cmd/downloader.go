@@ -113,3 +113,20 @@ func DownloadFile(url string, outDir string, filename string, progressPtr *bool,
 	log.Printf("Download completed in %s.\n", elapsed)
 	return path
 }
+
+func getContentLength(url string, err error) string {
+	headResp, err := http.Head(url)
+
+	logError(err)
+
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}(headResp.Body)
+
+	var contentLength = headResp.Header.Get("Content-Length")
+	return contentLength
+}
+

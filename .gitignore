@@ -1,4 +1,8 @@
 .idea
 bin
+cmd/out
+report.xml
 *.mp3
 *.jpg
+!_testdata/4DD.jpg
+!_testdata/show.mp3

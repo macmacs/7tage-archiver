@@ -20,3 +20,17 @@ jobs:
 
       - name: Build
         run: go build -v -o bin/7tage-archiver cmd/*
+
+      - name: Run Tests
+        run: |
+          export GOPATH="$HOME/go/"
+          export PATH=$PATH:$GOPATH/bin
+          go install github.com/jstemmer/go-junit-report@latest
+          go test -v cmd/* | go-junit-report -set-exit-code > report.xml
+
+      - name: Test Summary
+        uses: test-summary/action@v1
+        with:
+          paths: |
+            report.xml
+        if: always()
