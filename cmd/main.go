@@ -5,16 +5,13 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"github.com/bogem/id3v2"
 	"io/ioutil"
 	"log"
 	"net/http"
-	"net/url"
 	"os"
 	"regexp"
 	"strconv"
 	"strings"
-	"time"
 )
 
 func main() {
@@ -98,50 +95,6 @@ func getBroadcast(broadcastUrl string) Broadcast {
 	return broadcast
 }
 
-func SearchBroadcastUrl(searchTerm string) string {
-	response, err := http.Get("https://audioapi.orf.at/fm4/api/json/current/search?q=" + url.QueryEscape(searchTerm))
-
-	if err != nil {
-		fmt.Print(err.Error())
-		os.Exit(1)
-	}
-
-	responseData, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	parsedSearchResult := SearchResult{}
-
-	err = json.Unmarshal(responseData, &parsedSearchResult)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if len(parsedSearchResult.Hits) == 0 {
-		log.Fatal("No search results! Aborting ...")
-	}
-
-	log.Printf("Found following show:\n")
-
-	for _, hit := range parsedSearchResult.Hits {
-		if hit.Data.Entity == "Broadcast" &&
-			strings.Contains(hit.Data.Title, searchTerm) {
-			fmt.Printf("\n   Name:            %s\n", hit.Data.Title)
-			fmt.Printf("   ProgramKey:      %s\n", hit.Data.ProgramKey)
-			fmt.Printf("   BroadcastDay:    %d\n", hit.Data.BroadcastDay)
-			fmt.Printf("   Href:            %s\n", hit.Data.Href)
-			fmt.Printf("   StartISO:        %s\n", hit.Data.StartISO)
-			fmt.Printf("   Weekday:         %s\n", hit.Data.StartISO.Weekday())
-			fmt.Printf("   Duration (min):  %d\n", int64(hit.Data.EndISO.Sub(hit.Data.StartISO).Minutes()))
-			fmt.Printf("   Offset (hours):  %f\n\n", time.Since(hit.Data.StartISO).Hours()*-1)
-
-			return hit.Data.Href
-		}
-	}
-	return ""
-}
-
 func trim(str string) string {
 	return strings.TrimSpace(str)
 }
@@ -168,57 +121,6 @@ func saveImage(path string, show Show) string {
 		log.Println("No Cover images returned.")
 	}
 	return ""
-}
-
-func writeId3Tag(mp3path string, imagePath string, show Show) {
-
-	tag, err := id3v2.Open(mp3path, id3v2.Options{Parse: false})
-	if err != nil {
-		log.Fatal("Error while opening mp3 file: ", err)
-	}
-
-	tag.SetTitle(fmt.Sprintf("%s - %s", show.Title, show.BroadcastDay))
-	tag.SetAlbum(show.Year)
-	tag.SetArtist(show.Title)
-	tag.SetYear(show.Year)
-
-	//log.Printf("Setting tag %s", tag)
-
-	if imagePath != "" {
-		artwork, err := ioutil.ReadFile(imagePath)
-		if err != nil {
-			log.Println("Error while reading artwork file", err)
-		}
-
-		pic := id3v2.PictureFrame{
-			Encoding:    id3v2.EncodingUTF8,
-			MimeType:    "image/jpeg",
-			PictureType: id3v2.PTFrontCover,
-			Description: "Front cover",
-			Picture:     artwork,
-		}
-		tag.AddAttachedPicture(pic)
-
-		log.Println("Attached cover.")
-	} else {
-		log.Println("No cover url provided. Skipped image tag.")
-	}
-
-	textFrame := id3v2.TextFrame{
-		Encoding: id3v2.EncodingUTF8,
-		Text:     show.Title,
-	}
-	tag.AddFrame(tag.CommonID("TPE2"), textFrame)
-
-	defer func(tag *id3v2.Tag) {
-		err := tag.Close()
-		if err != nil {
-			log.Fatal(err)
-		}
-	}(tag)
-
-	err = tag.Save()
-	logError(err)
 }
 
 func getYear(parsedItemResult Broadcast) string {
