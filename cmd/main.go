@@ -5,16 +5,27 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"os"
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
+)
+
+const (
+	// YYYY-MM-DD: 2022-03-23
+	YYYYMMDD = "2006-01-02"
+	// 24h hh:mm:ss: 14:23:20
+	HHMMSS24h = "15:04:05"
 )
 
 func main() {
+
+	log.SetFlags(log.Lmsgprefix)
+	log.SetPrefix(time.Now().Format(YYYYMMDD+" "+HHMMSS24h) + " >   ")
 
 	searchCmd := flag.NewFlagSet("search", flag.ExitOnError)
 	searchQuery := searchCmd.String("query", "Davidecks", "-query SEARCHSTRING")
@@ -39,7 +50,6 @@ func main() {
 		Download(*showPtr, *destDirPtr)
 	case "search":
 		_ = searchCmd.Parse(os.Args[2:])
-		log.Printf("Searching for '%s' ...\n\n", *searchQuery)
 		SearchBroadcastUrl(*searchQuery)
 	default:
 		log.Println("expected 'download' or 'search' subcommands")
@@ -85,7 +95,7 @@ func getBroadcast(broadcastUrl string) Broadcast {
 	hitResponse, err := http.Get(broadcastUrl)
 	logError(err)
 
-	hitResponseData, err := ioutil.ReadAll(hitResponse.Body)
+	hitResponseData, err := io.ReadAll(hitResponse.Body)
 	logError(err)
 
 	broadcast := Broadcast{}

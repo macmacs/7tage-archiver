@@ -1,0 +1,162 @@
+{
+  "took": 18,
+  "isTimedOut": false,
+  "length": 2,
+  "total": 2,
+  "hits": [
+    {
+      "data": {
+        "href": "https://audioapi.orf.at/fm4/api/json/4.0/broadcast/4SL/20220806",
+        "station": "fm4",
+        "entity": "Broadcast",
+        "id": 25257,
+        "broadcastDay": 20220806,
+        "programKey": "4SL",
+        "program": "4SL",
+        "title": "Sleepless",
+        "subtitle": "<p>Durch die Nacht mit der Wiederholung des Swound Sound von letzter Woche und Liquid Radio von letzter Woche</p>",
+        "ressort": null,
+        "state": "C",
+        "isOnDemand": true,
+        "isGeoProtected": false,
+        "isAdFree": false,
+        "start": 1659834074000,
+        "startISO": "2022-08-07T03:01:14+02:00",
+        "startOffset": -7200000,
+        "scheduledStart": 1659834000000,
+        "scheduledStartISO": "2022-08-07T03:00:00+02:00",
+        "scheduledStartOffset": -7200000,
+        "end": 1659844798000,
+        "endISO": "2022-08-07T05:59:58+02:00",
+        "endOffset": -7200000,
+        "scheduledEnd": 1659844800000,
+        "scheduledEndISO": "2022-08-07T06:00:00+02:00",
+        "scheduledEndOffset": -7200000,
+        "niceTime": 1659834000000,
+        "niceTimeISO": "2022-08-07T03:00:00+02:00",
+        "niceTimeOffset": -7200000,
+        "description": null,
+        "pressRelease": "<p>FM4 Swound Sound: Party-Mix-Show mit Makossa und MC Sugar B</p>",
+        "moderator": null,
+        "url": null,
+        "images": [
+          {
+            "alt": "Ein Gecko schaut aus dem Fenster",
+            "mode": "default",
+            "text": "Sleepless",
+            "category": "imgprog",
+            "hashCode": 928001299,
+            "versions": [
+              {
+                "path": "https://radiobilder.orf.at/fm4/imgprog/width1750/keep/4SL.jpg?etag=f8a2dd841f691d8023932ec804a56217",
+                "width": 1750,
+                "hashCode": 368291431
+              },
+              {
+                "path": "https://radiobilder.orf.at/fm4/imgprog/width875/keep/4SL.jpg?etag=bd6e606e141949289dabe3dcb61da83c",
+                "width": 875,
+                "hashCode": 1802158545
+              },
+              {
+                "path": "https://radiobilder.orf.at/fm4/imgprog/width434/keep/4SL.jpg?etag=aab274aca7afefbb06ee5882789d3a2c",
+                "width": 434,
+                "hashCode": 796683125
+              }
+            ],
+            "copyright": "Radio FM4"
+          }
+        ],
+        "tags": [],
+        "oe1tags": []
+      },
+      "highlights": {
+        "subtitle": [
+          " Durch die Nacht mit der Wiederholung des <em>Swound</em> <em>Sound</em> von letzter Woche und Liquid Radio von letzter Woche     "
+        ]
+      }
+    },
+    {
+      "data": {
+        "href": "https://audioapi.orf.at/fm4/api/json/4.0/broadcast/4SS/20220806",
+        "station": "fm4",
+        "entity": "Broadcast",
+        "id": 25255,
+        "broadcastDay": 20220806,
+        "programKey": "4SS",
+        "program": "4SS",
+        "title": "Swound Sound",
+        "subtitle": "<p>Dein Gute-Laune-Party-Mix mit DJ Makossa und MC Sugar B.</p>",
+        "ressort": null,
+        "state": "C",
+        "isOnDemand": true,
+        "isGeoProtected": false,
+        "isAdFree": false,
+        "start": 1659816068000,
+        "startISO": "2022-08-06T22:01:08+02:00",
+        "startOffset": -7200000,
+        "scheduledStart": 1659816000000,
+        "scheduledStartISO": "2022-08-06T22:00:00+02:00",
+        "scheduledStartOffset": -7200000,
+        "end": 1659823357000,
+        "endISO": "2022-08-07T00:02:37+02:00",
+        "endOffset": -7200000,
+        "scheduledEnd": 1659823200000,
+        "scheduledEndISO": "2022-08-07T00:00:00+02:00",
+        "scheduledEndOffset": -7200000,
+        "niceTime": 1659816000000,
+        "niceTimeISO": "2022-08-06T22:00:00+02:00",
+        "niceTimeOffset": -7200000,
+        "description": "<p>1313. Swound Sound<br/>Makossa & Sugar B - 30 Years of Swound Sound <br/>22 tracks out of 22 years<br/>recorded @ Usus am Wasser</p><p>selected & mixed by Makossa:</p><p>IO - Claire / Cheap (1995)\t\t\t\t\t\t\t<br/>Megablast - Vamos (Pulsinger & Irl Dub) / Madorasindahouse (2019)<br/>Henrik Schwarz & Amampondo - I Exist Because Of You / Innervisions (2008)<br/>Frankey & Sandrino - Acamar / innervisions (2015)<br/>Djuma Soundsystem - Les Djinns (Trentemoller rx) / Audiomatique (2003)<br/>Lindstrom - I Feel Space / Feedelity (2005)<br/>Depeche Mode - Cover Me (Dixon rx) / Columbia Sony (2017)<br/>Pachanga Boys - Time  / Kompakt (2011)\t<br/>Guy Gerber - What To Do (&ME rx) / Rumors (2018)\t\t\t<br/>DJ Koze - Drone Me Up (&ME rx) / Pampa (2022)\t\t\t\t<br/>Moderat Moderat - Bad Kingdom (DJ Koze rx) / Pampa (2014)<br/>Dele Sosimi Afrobeat Orch. - Too Much Information (Laolu rx Edit) / (2016)<br/>Zakes Bantwini & Kasango - Osama / Paradise Sound System (2021)<br/>Ninetoes - Finder / KlingKlong (2013)<br/>Chicken Lips - He Not In (Noir's Personal Edit)  / Defected (2000)<br/>Todd Terje - Inspector Norse / Olsen  (2012)<br/>Trentemoeller - Moan / Poker Flat Recordings (2007)<br/>Booka Shade - In White Rooms  / Get Physical Music (2006)<br/>Paperclip People - Throw / Open (1994)<br/>Jaydee - Plastic Dreams / R&S (1993)<br/>Hell ft. Brian Ferry - U Can Dance (Carl Craig rx V1) / Int. Deejay Gigolo (2010)<br/>Bicep - Apricots / Ninja Tune (2017)</p>",
+        "pressRelease": "<p>Gute-Laune-Party-Mix mit DJ Makossa und MC Sugar B</p>",
+        "moderator": null,
+        "url": "http://fm4.orf.at/radio/stories/fm4swoundsoundsystem",
+        "images": [
+          {
+            "alt": "Illustration von Swound Sound",
+            "mode": "default",
+            "text": "Swound Sound",
+            "category": "imgprog",
+            "hashCode": 43613301,
+            "versions": [
+              {
+                "path": "https://radiobilder.orf.at/fm4/imgprog/width1750/keep/4SS.jpg?etag=36e6d9b6ddd73a1e337db915b8fda7a7",
+                "width": 1750,
+                "hashCode": 53254587
+              },
+              {
+                "path": "https://radiobilder.orf.at/fm4/imgprog/width875/keep/4SS.jpg?etag=052b1c9293771da1e089b917720d899f",
+                "width": 875,
+                "hashCode": 697066428
+              },
+              {
+                "path": "https://radiobilder.orf.at/fm4/imgprog/width434/keep/4SS.jpg?etag=046983eac6a52a3f4cbeee2f76da5e86",
+                "width": 434,
+                "hashCode": 2077888602
+              }
+            ],
+            "copyright": "Radio FM4"
+          }
+        ],
+        "tags": [],
+        "oe1tags": []
+      },
+      "highlights": {
+        "description": [
+          " 1313. <em>Swound</em> <em>Sound</em> Makossa & Sugar B - 30 Years of <em>Swound</em> <em>Sound</em>  22 tracks out of 22 years recorded @ Usus am Wasser  selected",
+          "Edit) / (2016) Zakes Bantwini & Kasango - Osama / Paradise <em>Sound</em> System (2021) Ninetoes - Finder / KlingKlong (2013) Chicken",
+          "Frankey & Sandrino - Acamar / innervisions (2015) Djuma <em>Soundsystem</em> - Les Djinns (Trentemoller rx) / Audiomatique (2003) Lindstrom"
+        ],
+        "title": [
+          "<em>Swound</em> <em>Sound</em>"
+        ]
+      }
+    }
+  ],
+  "suggest": [
+    {
+      "text": "sound sound",
+      "highlighted": "<em>sound</em> sound",
+      "score": 0.001357208
+    }
+  ]
+}

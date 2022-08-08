@@ -3,44 +3,28 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"net/url"
-	"os"
 	"strings"
 	"time"
 )
 
-func SearchBroadcastUrl(searchTerm string) string {
-	response, err := http.Get("https://audioapi.orf.at/fm4/api/json/current/search?q=" + url.QueryEscape(searchTerm))
+func SearchBroadcastUrl(searchQuery string) string {
 
-	if err != nil {
-		fmt.Print(err.Error())
-		os.Exit(1)
-	}
+	fmt.Printf("   Searching for '%s' ...\n\n", searchQuery)
 
-	responseData, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		log.Fatal(err)
-	}
+	parsedSearchResult, err := getSearchResults(searchQuery)
+	logError(err)
 
-	parsedSearchResult := SearchResult{}
-
-	err = json.Unmarshal(responseData, &parsedSearchResult)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if len(parsedSearchResult.Hits) == 0 {
-		log.Fatal("No search results! Aborting ...")
-	}
-
-	log.Printf("Found following show:\n")
+	fmt.Printf("   Found following show:\n")
 
 	for _, hit := range parsedSearchResult.Hits {
 		if hit.Data.Entity == "Broadcast" &&
-			strings.Contains(hit.Data.Title, searchTerm) {
+			strings.Contains(
+				strings.ToLower(hit.Data.Title),
+				strings.ToLower(searchQuery)) {
 			fmt.Printf("\n   Name:            %s\n", hit.Data.Title)
 			fmt.Printf("   ProgramKey:      %s\n", hit.Data.ProgramKey)
 			fmt.Printf("   BroadcastDay:    %d\n", hit.Data.BroadcastDay)
@@ -54,4 +38,31 @@ func SearchBroadcastUrl(searchTerm string) string {
 		}
 	}
 	return ""
+}
+
+func getSearchResults(searchTerm string) (SearchResult, error) {
+	response, err := http.Get("https://audioapi.orf.at/fm4/api/json/current/search?q=" + url.QueryEscape(searchTerm))
+	responseData, err := io.ReadAll(response.Body)
+
+	parsedSearchResult := SearchResult{}
+	err = json.Unmarshal(responseData, &parsedSearchResult)
+
+	if len(parsedSearchResult.Hits) == 0 {
+		if len(parsedSearchResult.Suggest) > 0 {
+			fmt.Printf("   No results found for %s.\n\n", searchTerm)
+			fmt.Printf("   But did you mean ")
+			for i, s := range parsedSearchResult.Suggest {
+				if i < len(parsedSearchResult.Suggest)-1 {
+					fmt.Printf("'%s' or ", s.Text)
+				} else {
+
+					fmt.Printf("'%s'?\n\n", s.Text)
+				}
+			}
+			log.Println("Please try again.")
+		} else {
+			log.Println("No search results!")
+		}
+	}
+	return parsedSearchResult, err
 }

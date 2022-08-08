@@ -1,0 +1,14 @@
+{
+  "took": 10,
+  "isTimedOut": false,
+  "length": 0,
+  "total": 0,
+  "hits": [],
+  "suggest": [
+    {
+      "text": "zimmerservice",
+      "highlighted": "<em>zimmerservice</em>",
+      "score": 0.01274191
+    }
+  ]
+}
