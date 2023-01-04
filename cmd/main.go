@@ -27,15 +27,12 @@ func main() {
 	log.SetFlags(log.Lmsgprefix)
 	log.SetPrefix(time.Now().Format(YYYYMMDD+" "+HHMMSS24h) + " >   ")
 
-	searchCmd := flag.NewFlagSet("search", flag.ExitOnError)
-	searchQuery := searchCmd.String("query", "Davidecks", "-query SEARCHSTRING")
-
 	downloadCmd := flag.NewFlagSet("download", flag.ExitOnError)
-	showPtr := downloadCmd.String("show", "Davidecks", "Show name")
+	showPtr := downloadCmd.String("show", "4DD", "Show name")
 	destDirPtr := downloadCmd.String("out-base-dir", "./music", "Location of your shows")
 
 	if len(os.Args) < 2 {
-		fmt.Println("expected 'download' or 'search' subcommands")
+		fmt.Println("expected 'download' or 'printshowids' subcommands")
 		os.Exit(1)
 	}
 
@@ -48,18 +45,17 @@ func main() {
 		log.Println("  out-base-dir:", *destDirPtr)
 		log.Println("  tail:", downloadCmd.Args())
 		Download(*showPtr, *destDirPtr)
-	case "search":
-		_ = searchCmd.Parse(os.Args[2:])
-		SearchBroadcastUrl(*searchQuery)
+	case "printshowids":
+		printShowIDs()
 	default:
 		log.Println("expected 'download' or 'search' subcommands")
 		os.Exit(1)
 	}
 }
 
-func Download(showSearch string, destDir string) {
+func Download(showId string, destDir string) {
 
-	broadcastUrl := SearchBroadcastUrl(showSearch)
+	broadcastUrl := CreateBroadcastUrl(showId)
 	broadcast := getBroadcast(broadcastUrl)
 
 	show := createShow(broadcast)
@@ -77,6 +73,10 @@ func Download(showSearch string, destDir string) {
 	}
 
 	log.Println("Done.")
+}
+
+func CreateBroadcastUrl(showId string) string {
+	return fmt.Sprintf("https://audioapi.orf.at/fm4/api/json/4.0/broadcast/%s", showId)
 }
 
 func createShow(broadcast Broadcast) Show {
@@ -177,4 +177,34 @@ func fileExists(name string) (bool, error) {
 		return false, nil
 	}
 	return false, err
+}
+
+func printShowIDs() {
+	showIds := map[string]string{
+		"4HOP": "House Of Pain",
+		"4UL":  "Unlimited",
+		"4SSU": "Sunny Side Up",
+		"4CH":  "Charts",
+		"4ZS":  "Zimmerservice",
+		"4JZ":  "Jugend-Zimmer",
+		"4DD":  "Davidecks",
+		"4IS":  "Im Sumpf",
+		"4HE":  "Heartbeat",
+		"4HS":  "High Spirits",
+		"4TV":  "Tribe Vibes",
+		"4SH":  "Salon Helga",
+		"4GL":  "Graue Lagune",
+		"4PH":  "Fivas Ponyhof",
+		"4CZ":  "Chez Hermez",
+		"4BT":  "Bonustrack",
+		"4PX":  "Project X",
+		"4LB":  "La Boum de Luxe",
+		"4SS":  "Swound Sound System",
+		"4LR":  "Liquid Radio",
+		"4DKM": "Digital Konfusion",
+		"4SOP": "Soundpark",
+	}
+	for n, m := range showIds {
+		fmt.Println(m, ": ", n)
+	}
 }
