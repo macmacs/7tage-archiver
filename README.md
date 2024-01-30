@@ -1,6 +1,6 @@
-# Radio Show Archiver - 7Tage
+# Radio Show Archiver - 7Tage - 30 days
 
-Archives the last aired show to an `mp3` file and tags it with info and image.
+Archives FM4 shows that aired within the last 30 days to `mp3` files and tags them with info and image.
 
 ```bash
 Usage of bin/fm4-archiver:
