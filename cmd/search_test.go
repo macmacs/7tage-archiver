@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/jarcoal/httpmock"
 	"net/http"
+	"reflect"
 	"testing"
 )
 
@@ -22,10 +23,10 @@ func TestSearchBroadcastUrl(t *testing.T) {
 		},
 	)
 
-	got := SearchBroadcastUrl("Swound Sound")
-	want := "https://audioapi.orf.at/fm4/api/json/4.0/broadcast/4SS/20220806"
+	got := SearchBroadcastUrls("Swound Sound")
+	want := []string{"https://audioapi.orf.at/fm4/api/json/4.0/broadcast/4SS/20220806"}
 
-	if got != want {
+	if !reflect.DeepEqual(got, want) {
 		t.Errorf("got %q want %q", got, want)
 	}
 }

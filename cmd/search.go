@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-func SearchBroadcastUrl(searchQuery string) string {
+func SearchBroadcastUrls(searchQuery string) []string {
 
 	fmt.Printf("   Searching for '%s' ...\n\n", searchQuery)
 
@@ -19,6 +19,8 @@ func SearchBroadcastUrl(searchQuery string) string {
 	logError(err)
 
 	fmt.Printf("   Found following show:\n")
+
+	var result []string
 
 	for _, hit := range parsedSearchResult.Hits {
 		if hit.Data.Entity == "Broadcast" &&
@@ -34,10 +36,10 @@ func SearchBroadcastUrl(searchQuery string) string {
 			fmt.Printf("   Duration (min):  %d\n", int64(hit.Data.EndISO.Sub(hit.Data.StartISO).Minutes()))
 			fmt.Printf("   Offset (hours):  %f\n\n", time.Since(hit.Data.StartISO).Hours()*-1)
 
-			return hit.Data.Href
+			result = append(result, hit.Data.Href)
 		}
 	}
-	return ""
+	return result
 }
 
 func getSearchResults(searchTerm string) (SearchResult, error) {

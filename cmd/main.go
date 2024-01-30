@@ -50,7 +50,7 @@ func main() {
 		Download(*showPtr, *destDirPtr)
 	case "search":
 		_ = searchCmd.Parse(os.Args[2:])
-		SearchBroadcastUrl(*searchQuery)
+		SearchBroadcastUrls(*searchQuery)
 	default:
 		log.Println("expected 'download' or 'search' subcommands")
 		os.Exit(1)
@@ -59,21 +59,25 @@ func main() {
 
 func Download(showSearch string, destDir string) {
 
-	broadcastUrl := SearchBroadcastUrl(showSearch)
-	broadcast := getBroadcast(broadcastUrl)
+	broadcastUrls := SearchBroadcastUrls(showSearch)
 
-	show := createShow(broadcast)
+	for _, broadcastUrl := range broadcastUrls {
 
-	if len(show.Streams) > 0 {
-		mp3Path := DownloadFile(
-			getDownloadUrl(show),
-			getOutputPath(destDir, show),
-			getFileName(show))
+		broadcast := getBroadcast(broadcastUrl)
 
-		imagePath := saveImage(destDir, show)
-		writeId3Tag(mp3Path, imagePath, show)
-	} else {
-		log.Println("No streams found. Skipped download.")
+		show := createShow(broadcast)
+
+		if len(show.Streams) > 0 {
+			mp3Path := DownloadFile(
+				getDownloadUrl(show),
+				getOutputPath(destDir, show),
+				getFileName(show))
+
+			imagePath := saveImage(destDir, show)
+			writeId3Tag(mp3Path, imagePath, show)
+		} else {
+			log.Println("No streams found. Skipped download.")
+		}
 	}
 
 	log.Println("Done.")
