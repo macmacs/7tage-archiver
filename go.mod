@@ -13,5 +13,5 @@ require (
 	github.com/rivo/uniseg v0.4.4 // indirect
 	golang.org/x/sys v0.14.0 // indirect
 	golang.org/x/term v0.14.0 // indirect
-	golang.org/x/text v0.3.7 // indirect
+	golang.org/x/text v0.3.8 // indirect
 )
