@@ -1,0 +1,37 @@
+{
+  "timezoneOffset": -7200000,
+  "payload": [
+    {
+      "href": "https://audioapi.orf.at/fm4/api/json/5.0/broadcast/42628",
+      "station": "fm4",
+      "entity": "Broadcast",
+      "id": 42628,
+      "broadcastDay": 20260620,
+      "program": "4DD",
+      "programKey": "4DD",
+      "title": "Davidecks",
+      "subtitle": "<p>Die Mixshow von Kristian Davidek ist dein Einstieg in die Samstagnacht.</p>",
+      "state": "C",
+      "isOnDemand": true,
+      "isGeoProtected": false,
+      "isAdFree": false,
+      "duration": 7203000
+    },
+    {
+      "href": "https://audioapi.orf.at/fm4/api/json/5.0/broadcast/42536",
+      "station": "fm4",
+      "entity": "Broadcast",
+      "id": 42536,
+      "broadcastDay": 20260613,
+      "program": "4DD",
+      "programKey": "4DD",
+      "title": "Davidecks",
+      "subtitle": "<p>Die Mixshow von Kristian Davidek ist dein Einstieg in die Samstagnacht.</p>",
+      "state": "C",
+      "isOnDemand": true,
+      "isGeoProtected": false,
+      "isAdFree": false,
+      "duration": 7140000
+    }
+  ]
+}

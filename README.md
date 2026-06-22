@@ -2,6 +2,9 @@
 
 Archives FM4 shows that aired within the last 30 days to `mp3` files and tags them with info and image.
 
+Shows can be resolved either by name (via the built-in search) or directly
+from a `sound.orf.at` Sendung URL.
+
 ```bash
 Usage of bin/fm4-archiver:
 
@@ -10,7 +13,13 @@ download
         Location of your shows (default "/music")
   -show string
         A Radio FM4 Show (default "Davidecks")
-        
+
+url
+  Takes a sound.orf.at Sendung URL, e.g.
+  https://sound.orf.at/radio/fm4/sendung/42628/davidecks
+  -out-base-dir string
+        Location of your shows (default "./music")
+
 search
   -query string
         Search show by query
@@ -18,10 +27,16 @@ search
 
 ## CLI
 
-Run e.g.
+Download a show by name:
 
 ```bash
 $ 7tage-archiver download -show "Graue Lagune" -out-base-dir .
+```
+
+Download every available episode of a show from its sound.orf.at URL:
+
+```bash
+$ 7tage-archiver url https://sound.orf.at/radio/fm4/sendung/42628/davidecks -out-base-dir .
 ```
 
 Result:

@@ -34,8 +34,11 @@ func main() {
 	showPtr := downloadCmd.String("show", "Davidecks", "Show name")
 	destDirPtr := downloadCmd.String("out-base-dir", "./music", "Location of your shows")
 
+	urlCmd := flag.NewFlagSet("url", flag.ExitOnError)
+	destDirUrlPtr := urlCmd.String("out-base-dir", "./music", "Location of your shows")
+
 	if len(os.Args) < 2 {
-		fmt.Println("expected 'download' or 'search' subcommands")
+		fmt.Println("expected 'download', 'url' or 'search' subcommands")
 		os.Exit(1)
 	}
 
@@ -48,11 +51,22 @@ func main() {
 		log.Println("  out-base-dir:", *destDirPtr)
 		log.Println("  tail:", downloadCmd.Args())
 		Download(*showPtr, *destDirPtr)
+	case "url":
+		_ = urlCmd.Parse(os.Args[2:])
+		if len(urlCmd.Args()) < 1 {
+			log.Fatal("subcommand 'url' expects a sound.orf.at Sendung URL, e.g. " +
+				"https://sound.orf.at/radio/fm4/sendung/42628/davidecks")
+		}
+		soundUrl := urlCmd.Arg(0)
+		log.Println("subcommand 'url'")
+		log.Println("  url:", soundUrl)
+		log.Println("  out-base-dir:", *destDirUrlPtr)
+		DownloadByUrl(soundUrl, *destDirUrlPtr)
 	case "search":
 		_ = searchCmd.Parse(os.Args[2:])
 		SearchBroadcastUrls(*searchQuery)
 	default:
-		log.Println("expected 'download' or 'search' subcommands")
+		log.Println("expected 'download', 'url' or 'search' subcommands")
 		os.Exit(1)
 	}
 }
@@ -60,6 +74,23 @@ func main() {
 func Download(showSearch string, destDir string) {
 
 	broadcastUrls := SearchBroadcastUrls(showSearch)
+
+	downloadBroadcasts(broadcastUrls, destDir)
+}
+
+// DownloadByUrl downloads all available episodes of the show referenced by a
+// sound.orf.at Sendung URL (e.g.
+// https://sound.orf.at/radio/fm4/sendung/42628/davidecks). The URL points at
+// a single episode; its programKey is resolved and every episode of the show
+// still in the 30-day on-demand window is fetched.
+func DownloadByUrl(soundUrl string, destDir string) {
+
+	broadcastUrls := ResolveBroadcastUrlsFromSoundUrl(soundUrl)
+
+	downloadBroadcasts(broadcastUrls, destDir)
+}
+
+func downloadBroadcasts(broadcastUrls []string, destDir string) {
 
 	for _, broadcastUrl := range broadcastUrls {
 
