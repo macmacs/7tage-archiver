@@ -32,12 +32,34 @@ func TestResolveBroadcastUrlsFromSoundUrl(t *testing.T) {
 		},
 	)
 
-	got := ResolveBroadcastUrlsFromSoundUrl(soundUrlDavidecks)
+	got := ResolveBroadcastUrls(soundUrlDavidecks)
 	want := []string{
 		"https://audioapi.orf.at/fm4/api/json/4.0/broadcast/4DD/20260620",
 		"https://audioapi.orf.at/fm4/api/json/4.0/broadcast/4DD/20260613",
 	}
 
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("got %q want %q", got, want)
+	}
+}
+
+func TestResolveBroadcastUrlsFromProgramKey(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	// A bare programKey skips the broadcast/{id} lookup and lists episodes directly.
+	programUrl := "https://audioapi.orf.at/fm4/api/json/5.0/broadcasts/program/4DD"
+	httpmock.RegisterResponder("GET", programUrl,
+		func(req *http.Request) (*http.Response, error) {
+			return httpmock.NewJsonResponse(200, httpmock.File("../_testdata/program_4DD.json"))
+		},
+	)
+
+	got := ResolveBroadcastUrls("4DD")
+	want := []string{
+		"https://audioapi.orf.at/fm4/api/json/4.0/broadcast/4DD/20260620",
+		"https://audioapi.orf.at/fm4/api/json/4.0/broadcast/4DD/20260613",
+	}
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("got %q want %q", got, want)
 	}
@@ -61,7 +83,7 @@ func TestResolveBroadcastUrlsFromSoundUrlWithoutSlug(t *testing.T) {
 	)
 
 	// A Sound Sendung URL without the trailing title slug must also resolve.
-	got := ResolveBroadcastUrlsFromSoundUrl("https://sound.orf.at/radio/fm4/sendung/42628")
+	got := ResolveBroadcastUrls("https://sound.orf.at/radio/fm4/sendung/42628")
 	if len(got) != 2 {
 		t.Errorf("expected 2 broadcast URLs, got %d (%q)", len(got), got)
 	}

@@ -14,24 +14,34 @@ import (
 // Only the fm4 station is supported (matches the rest of this FM4-focused tool).
 var soundUrlPattern = regexp.MustCompile(`^https?://sound\.orf\.at/radio/fm4/sendung/(\d+)(?:/[\w-]+)?$`)
 
-// ResolveBroadcastUrlsFromSoundUrl parses a sound.orf.at Sendung URL and
-// returns the broadcast href URLs of all available episodes of that show.
-// The given URL points at a single broadcast (episode); its programKey is
-// resolved first, then broadcasts/program/{programKey} lists every episode
-// still inside the 30-day on-demand window.
-func ResolveBroadcastUrlsFromSoundUrl(soundUrl string) []string {
-	matches := soundUrlPattern.FindStringSubmatch(soundUrl)
-	if matches == nil {
-		log.Fatalf("URL does not match expected pattern "+
-			"'https://sound.orf.at/radio/fm4/sendung/<id>[/<slug>]': %s", soundUrl)
+// programKeyPattern matches a bare fm4 programKey (e.g. "4DD", "4DKM"). Unlike
+// the episode id in a Sendung URL, a programKey is stable across episodes, so
+// it is the right identifier for a recurring (e.g. cron-driven) download.
+var programKeyPattern = regexp.MustCompile(`^[0-9A-Z]{2,8}$`)
+
+// ResolveBroadcastUrls resolves a show reference into the broadcast href URLs
+// of all its episodes still inside the 30-day on-demand window. The reference
+// is either a sound.orf.at Sendung URL (which points at a single episode whose
+// programKey is resolved first) or a bare, stable programKey (e.g. "4DD").
+func ResolveBroadcastUrls(showRef string) []string {
+	if matches := soundUrlPattern.FindStringSubmatch(showRef); matches != nil {
+		broadcastId := matches[1]
+		programKey := getProgramKey(broadcastId)
+		log.Printf("Resolved show with programKey %s from URL", programKey)
+		log.Println("Found following show:")
+		return getProgramEpisodes(programKey)
 	}
-	broadcastId := matches[1]
 
-	programKey := getProgramKey(broadcastId)
-	log.Printf("Resolved show with programKey %s from URL", programKey)
-	log.Println("Found following show:")
+	if programKeyPattern.MatchString(showRef) {
+		log.Printf("Using programKey %s directly", showRef)
+		log.Println("Found following show:")
+		return getProgramEpisodes(showRef)
+	}
 
-	return getProgramEpisodes(programKey)
+	log.Fatalf("expected a sound.orf.at Sendung URL "+
+		"('https://sound.orf.at/radio/fm4/sendung/<id>[/<slug>]') or a programKey "+
+		"(e.g. '4DD'), got: %s", showRef)
+	return nil
 }
 
 func logUnexpectedStatus(response *http.Response, url string) {

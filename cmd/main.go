@@ -54,14 +54,15 @@ func main() {
 	case "url":
 		_ = urlCmd.Parse(os.Args[2:])
 		if len(urlCmd.Args()) < 1 {
-			log.Fatal("subcommand 'url' expects a sound.orf.at Sendung URL, e.g. " +
-				"https://sound.orf.at/radio/fm4/sendung/42628/davidecks")
+			log.Fatal("subcommand 'url' expects a sound.orf.at Sendung URL " +
+				"(https://sound.orf.at/radio/fm4/sendung/42628/davidecks) " +
+				"or a programKey (e.g. 4DD)")
 		}
-		soundUrl := urlCmd.Arg(0)
+		showRef := urlCmd.Arg(0)
 		log.Println("subcommand 'url'")
-		log.Println("  url:", soundUrl)
+		log.Println("  show:", showRef)
 		log.Println("  out-base-dir:", *destDirUrlPtr)
-		DownloadByUrl(soundUrl, *destDirUrlPtr)
+		DownloadByUrl(showRef, *destDirUrlPtr)
 	case "search":
 		_ = searchCmd.Parse(os.Args[2:])
 		SearchBroadcastUrls(*searchQuery)
@@ -78,14 +79,15 @@ func Download(showSearch string, destDir string) {
 	downloadBroadcasts(broadcastUrls, destDir)
 }
 
-// DownloadByUrl downloads all available episodes of the show referenced by a
-// sound.orf.at Sendung URL (e.g.
-// https://sound.orf.at/radio/fm4/sendung/42628/davidecks). The URL points at
-// a single episode; its programKey is resolved and every episode of the show
-// still in the 30-day on-demand window is fetched.
-func DownloadByUrl(soundUrl string, destDir string) {
+// DownloadByUrl downloads all available episodes of the show referenced by
+// either a sound.orf.at Sendung URL (e.g.
+// https://sound.orf.at/radio/fm4/sendung/42628/davidecks) or a stable
+// programKey (e.g. "4DD"). Every episode still in the 30-day on-demand window
+// is fetched. Prefer the programKey for recurring downloads: a URL's episode
+// id ages out of the window after 30 days, a programKey does not.
+func DownloadByUrl(showRef string, destDir string) {
 
-	broadcastUrls := ResolveBroadcastUrlsFromSoundUrl(soundUrl)
+	broadcastUrls := ResolveBroadcastUrls(showRef)
 
 	downloadBroadcasts(broadcastUrls, destDir)
 }
