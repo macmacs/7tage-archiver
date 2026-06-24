@@ -27,16 +27,22 @@ func SearchBroadcastUrls(searchQuery string) []string {
 			strings.Contains(
 				strings.ToLower(hit.Data.Title),
 				strings.ToLower(searchQuery)) {
+			// The search endpoint (current/search) returns v4.0-style hrefs, but
+			// getBroadcast now consumes the v5.0 broadcast/{id} endpoint. The
+			// broadcast-level hit's id is v5.0-compatible (verified against the
+			// live API), so build the v5.0 href here; item-level hits never reach
+			// this branch (they are filtered by Entity == "Broadcast").
+			href := fmt.Sprintf("https://audioapi.orf.at/fm4/api/json/5.0/broadcast/%d", hit.Data.ID)
 			fmt.Printf("\n   Name:            %s\n", hit.Data.Title)
 			fmt.Printf("   ProgramKey:      %s\n", hit.Data.ProgramKey)
 			fmt.Printf("   BroadcastDay:    %d\n", hit.Data.BroadcastDay)
-			fmt.Printf("   Href:            %s\n", hit.Data.Href)
+			fmt.Printf("   Href:            %s\n", href)
 			fmt.Printf("   StartISO:        %s\n", hit.Data.StartISO)
 			fmt.Printf("   Weekday:         %s\n", hit.Data.StartISO.Weekday())
 			fmt.Printf("   Duration (min):  %d\n", int64(hit.Data.EndISO.Sub(hit.Data.StartISO).Minutes()))
 			fmt.Printf("   Offset (hours):  %f\n\n", time.Since(hit.Data.StartISO).Hours()*-1)
 
-			result = append(result, hit.Data.Href)
+			result = append(result, href)
 		}
 	}
 	return result

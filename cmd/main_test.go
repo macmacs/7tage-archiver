@@ -16,11 +16,14 @@ func TestGetBroadcast(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
-	broadcastUrl := "https://audioapi.orf.at/fm4/api/json/4.0/broadcast/4DD/20220806"
+	// getBroadcast fetches the v5.0 broadcast/{id} endpoint (with ?items= appended
+	// by ensureItemsParam) and unwraps the {"payload":{...}} envelope into the
+	// int64-ms Broadcast model via toBroadcast.
+	broadcastUrl := "https://audioapi.orf.at/fm4/api/json/5.0/broadcast/42628?items=1000"
 
 	httpmock.RegisterResponder("GET", broadcastUrl,
 		func(req *http.Request) (*http.Response, error) {
-			resp, err := httpmock.NewJsonResponse(200, httpmock.File("../_testdata/davidecks.json"))
+			resp, err := httpmock.NewJsonResponse(200, httpmock.File("../_testdata/broadcast_42628_full_v5.json"))
 			if err != nil {
 				return httpmock.NewStringResponse(500, ""), nil
 			}
@@ -28,13 +31,20 @@ func TestGetBroadcast(t *testing.T) {
 		},
 	)
 
-	got := getBroadcast(broadcastUrl)
-	want := Broadcast{
-		Title: "Davidecks",
-	}
+	got := getBroadcast("https://audioapi.orf.at/fm4/api/json/5.0/broadcast/42628")
 
-	if got.Title != want.Title {
-		t.Errorf("got %q want %q", got.Title, want.Title)
+	if got.Title != "Davidecks" {
+		t.Errorf("Title got %q want %q", got.Title, "Davidecks")
+	}
+	// The per-station loopstream host replaces the legacy loopstream01.apa.at,
+	// and the RFC-6570 template tokens + pre-filled offsets are stripped.
+	wantProgressive := "https://loopstreamfm4.apa.at?channel=fm4&id=2026-06-20_1859_tl_54_7DaysSat5_180163.mp3"
+	var gotProgressive string
+	if len(got.Streams) > 0 {
+		gotProgressive = got.Streams[0].Progressive
+	}
+	if gotProgressive != wantProgressive {
+		t.Errorf("Streams[0].Progressive got %q want %q", gotProgressive, wantProgressive)
 	}
 }
 
@@ -78,14 +88,14 @@ func TestCreateShow(t *testing.T) {
 func TestGetDownloadUrl(t *testing.T) {
 
 	stream := Streams{
-		LoopStreamID: "LoopStreamID",
+		Progressive: "https://loopstreamfm4.apa.at?channel=fm4&id=LoopStreamID",
 	}
 	show := Show{
 		Streams: []Streams{stream},
 	}
 
 	got := getDownloadUrl(show)
-	want := "https://loopstream01.apa.at/?channel=fm4&id=LoopStreamID"
+	want := "https://loopstreamfm4.apa.at?channel=fm4&id=LoopStreamID"
 
 	if got != want {
 		t.Errorf("got %q want %q", got, want)

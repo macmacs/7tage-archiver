@@ -1,0 +1,93 @@
+{
+  "timezoneOffset": -7200000,
+  "payload": {
+    "href": "https://audioapi.orf.at/fm4/api/json/5.0/broadcast/42628",
+    "station": "fm4",
+    "entity": "Broadcast",
+    "id": 42628,
+    "broadcastDay": 20260620,
+    "program": "4DD",
+    "programKey": "4DD",
+    "title": "Davidecks",
+    "subtitle": "<p>Die Mixshow von Kristian Davidek ist dein Einstieg in die Samstagnacht.</p>",
+    "state": "C",
+    "isOnDemand": true,
+    "isGeoProtected": false,
+    "isAdFree": false,
+    "start": "2026-06-20T16:59:36.000Z",
+    "end": "2026-06-20T18:59:39.000Z",
+    "duration": 7203000,
+    "expiry": "2026-07-20T16:59:36.000Z",
+    "images": [
+      {
+        "alt": "Davidecks",
+        "mode": "default",
+        "text": "Davidecks",
+        "category": "imgprog",
+        "hashCode": 1462932444,
+        "versions": [
+          {
+            "path": "https://radiobilder.orf.at/fm4/imgprog/width434/keep/4DD.jpg?etag=c9b1550c7123f03dcd018f81662376ba",
+            "width": 434,
+            "hashCode": 1485262649
+          }
+        ],
+        "copyright": "Radio FM4"
+      }
+    ],
+    "streams": [
+      {
+        "host": "loopstreamfm4.apa.at",
+        "channel": "fm4",
+        "loopStreamId": "2026-06-20_1859_tl_54_7DaysSat5_180163.mp3",
+        "start": "2026-06-20T17:02:29.000Z",
+        "end": "2026-06-20T18:59:39.000Z",
+        "offsetStart": 173000,
+        "offsetEnd": 7203000,
+        "urls": {
+          "progressive": "https://loopstreamfm4.apa.at?channel=fm4&id=2026-06-20_1859_tl_54_7DaysSat5_180163.mp3&offset=173000&offsetende=7203000{&shoutcast}{&player}{&referer}{&userid}",
+          "hls": "https://loopstreamfm4.apa.at/playlist.m3u8?channel=fm4&id=2026-06-20_1859_tl_54_7DaysSat5_180163.mp3&offset=173000&offsetende=7203000{&shoutcast}{&player}{&referer}{&userid}"
+        },
+        "uriTemplates": {
+          "progressive": "https://loopstreamfm4.apa.at?channel=fm4&id=2026-06-20_1859_tl_54_7DaysSat5_180163.mp3{&offset}{&offsetende}{&shoutcast}{&player}{&referer}{&userid}",
+          "hls": "https://loopstreamfm4.apa.at/playlist.m3u8?channel=fm4&id=2026-06-20_1859_tl_54_7DaysSat5_180163.mp3{&offset}{&offsetende}{&shoutcast}{&player}{&referer}{&userid}"
+        }
+      }
+    ],
+    "items": [
+      {
+        "type": "N",
+        "title": "News",
+        "start": "2026-06-20T16:59:36.000Z",
+        "end": "2026-06-20T17:03:44.500Z",
+        "duration": 248500
+      },
+      {
+        "type": "B",
+        "title": "Davidecks",
+        "start": "2026-06-20T17:03:44.500Z",
+        "end": "2026-06-20T17:58:57.000Z",
+        "duration": 3312500
+      },
+      {
+        "type": "W",
+        "start": "2026-06-20T17:58:57.000Z",
+        "end": "2026-06-20T17:59:49.000Z",
+        "duration": 52000
+      },
+      {
+        "type": "B",
+        "title": "Davidecks",
+        "start": "2026-06-20T17:59:49.000Z",
+        "end": "2026-06-20T18:58:49.000Z",
+        "duration": 3540000
+      },
+      {
+        "type": "W",
+        "start": "2026-06-20T18:58:49.000Z",
+        "end": "2026-06-20T18:59:39.000Z",
+        "duration": 50000
+      }
+    ]
+  }
+}

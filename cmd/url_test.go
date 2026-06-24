@@ -34,8 +34,8 @@ func TestResolveBroadcastUrlsFromSoundUrl(t *testing.T) {
 
 	got := ResolveBroadcastUrls(soundUrlDavidecks)
 	want := []string{
-		"https://audioapi.orf.at/fm4/api/json/4.0/broadcast/4DD/20260620",
-		"https://audioapi.orf.at/fm4/api/json/4.0/broadcast/4DD/20260613",
+		"https://audioapi.orf.at/fm4/api/json/5.0/broadcast/42628",
+		"https://audioapi.orf.at/fm4/api/json/5.0/broadcast/42536",
 	}
 
 	if !reflect.DeepEqual(got, want) {
@@ -57,8 +57,8 @@ func TestResolveBroadcastUrlsFromProgramKey(t *testing.T) {
 
 	got := ResolveBroadcastUrls("4DD")
 	want := []string{
-		"https://audioapi.orf.at/fm4/api/json/4.0/broadcast/4DD/20260620",
-		"https://audioapi.orf.at/fm4/api/json/4.0/broadcast/4DD/20260613",
+		"https://audioapi.orf.at/fm4/api/json/5.0/broadcast/42628",
+		"https://audioapi.orf.at/fm4/api/json/5.0/broadcast/42536",
 	}
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("got %q want %q", got, want)
@@ -148,8 +148,8 @@ func TestGetProgramEpisodes(t *testing.T) {
 
 	got := getProgramEpisodes("4DD")
 	want := []string{
-		"https://audioapi.orf.at/fm4/api/json/4.0/broadcast/4DD/20260620",
-		"https://audioapi.orf.at/fm4/api/json/4.0/broadcast/4DD/20260613",
+		"https://audioapi.orf.at/fm4/api/json/5.0/broadcast/42628",
+		"https://audioapi.orf.at/fm4/api/json/5.0/broadcast/42536",
 	}
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("got %q want %q", got, want)

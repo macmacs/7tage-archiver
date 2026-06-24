@@ -52,10 +52,7 @@ func logUnexpectedStatus(response *http.Response, url string) {
 
 // getProgramKey fetches broadcast/{id} on the v5.0 API and returns the
 // show's programKey (e.g. "4DD" for the Davidecks broadcast id 42628).
-// Note: the v5.0 API wraps the broadcast inside {"timezoneOffset":...,"payload":{...}},
-// unlike the v4.0 search-href URLs returned by the 'search'/'download' flow
-// where the broadcast sits at the top level. We unwrap here so the rest of
-// the pipeline (getBroadcast over v4.0 hrefs) stays unchanged.
+// The v5.0 API wraps the broadcast inside {"timezoneOffset":...,"payload":{...}}.
 func getProgramKey(broadcastId string) string {
 	broadcastUrl := fmt.Sprintf("https://audioapi.orf.at/fm4/api/json/5.0/broadcast/%s", broadcastId)
 
@@ -84,13 +81,12 @@ func getProgramKey(broadcastId string) string {
 }
 
 // getProgramEpisodes calls broadcasts/program/{programKey} on the v5.0 API
-// and returns v4.0-style broadcast href URLs (one per episode) that the
-// existing getBroadcast/DownloadFile pipeline consumes unchanged. The v5.0
-// listing endpoint returns each episode's programKey and broadcastDay, which
-// are the components of the (stable) v4.0 broadcast URL
-// audioapi.orf.at/{station}/api/json/4.0/broadcast/{programKey}/{broadcastDay}.
-// Going via v4.0 hrefs keeps the rest of this tool format-agnostic and avoids
-// needing to unwrap the v5.0 {'payload': {...}} envelope in getBroadcast.
+// and returns the API's own per-episode href URLs (v5.0 broadcast/{id}).
+// getBroadcast then unwraps each episode's {payload:{...}} envelope.
+//
+// The episode list summaries omit stream URLs and items (those are only present
+// on the per-episode broadcast/{id} response), so a follow-up fetch per episode
+// is still required - the existing one-fetch-per-broadcast pattern is unchanged.
 func getProgramEpisodes(programKey string) []string {
 	url := fmt.Sprintf("https://audioapi.orf.at/fm4/api/json/5.0/broadcasts/program/%s", programKey)
 
@@ -110,6 +106,8 @@ func getProgramEpisodes(programKey string) []string {
 	// The endpoint returns {"timezoneOffset": ..., "payload": [ <broadcast>, ... ]}
 	var wrapper struct {
 		Payload []struct {
+			Href         string `json:"href"`
+			ID           int    `json:"id"`
 			BroadcastDay int    `json:"broadcastDay"`
 			Title        string `json:"title"`
 			ProgramKey   string `json:"programKey"`
@@ -129,10 +127,8 @@ func getProgramEpisodes(programKey string) []string {
 		log.Printf("Name:            %s", episode.Title)
 		log.Printf("ProgramKey:      %s", episode.ProgramKey)
 		log.Printf("BroadcastDay:    %d", episode.BroadcastDay)
-		href := fmt.Sprintf("https://audioapi.orf.at/fm4/api/json/4.0/broadcast/%s/%d",
-			episode.ProgramKey, episode.BroadcastDay)
-		log.Printf("Href:            %s", href)
-		urls = append(urls, href)
+		log.Printf("Href:            %s", episode.Href)
+		urls = append(urls, episode.Href)
 	}
 	log.Println("")
 	return urls

@@ -34,12 +34,12 @@ func TestContentSegments(t *testing.T) {
 	// Items: 0=News (N), 1,2=content (B), 3=ad/weather (W), 4=content (B).
 	// The news and the ad are cut out, leaving the content around them.
 	want0 := segment{
-		offset:    b.Items[0].End - streamStart, // after the leading news
+		offset:    b.Items[0].End - streamStart,   // after the leading news
 		offsetEnd: b.Items[3].Start - streamStart, // up to the ad
 	}
 	want1 := segment{
 		offset:    b.Items[3].End - streamStart, // after the ad
-		offsetEnd: streamEnd - streamStart, // to the end of the stream
+		offsetEnd: streamEnd - streamStart,      // to the end of the stream
 	}
 
 	if got[0] != want0 {
@@ -59,10 +59,10 @@ func TestContentSegmentsNoItems(t *testing.T) {
 }
 
 func TestGetSegmentUrl(t *testing.T) {
-	show := Show{Streams: []Streams{{LoopStreamID: "LoopStreamID"}}}
+	show := Show{Streams: []Streams{{Progressive: "https://loopstreamfm4.apa.at?channel=fm4&id=LoopStreamID"}}}
 
 	got := getSegmentUrl(show, segment{offset: 175000, offsetEnd: 3561000})
-	want := "https://loopstream01.apa.at/?channel=fm4&id=LoopStreamID&offset=175000&offsetende=3561000"
+	want := "https://loopstreamfm4.apa.at?channel=fm4&id=LoopStreamID&offset=175000&offsetende=3561000"
 
 	if got != want {
 		t.Errorf("got %q want %q", got, want)

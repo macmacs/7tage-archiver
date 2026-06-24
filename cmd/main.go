@@ -8,6 +8,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"regexp"
 	"strconv"
@@ -139,17 +140,44 @@ func createShow(broadcast Broadcast) Show {
 }
 
 func getBroadcast(broadcastUrl string) Broadcast {
+	broadcastUrl = ensureItemsParam(broadcastUrl)
 	hitResponse, err := http.Get(broadcastUrl)
 	logError(err)
 
 	hitResponseData, err := io.ReadAll(hitResponse.Body)
 	logError(err)
 
-	broadcast := Broadcast{}
-	err = json.Unmarshal(hitResponseData, &broadcast)
+	// The v5.0 API wraps the broadcast inside {"timezoneOffset":...,"payload":{...}},
+	// unlike the old v4.0 hrefs where the broadcast sat at the top level. Unwrap
+	// here and map through the broadcastV5 intermediate so the consumed Broadcast
+	// stays in int64-millisecond form for trim.go.
+	var wrapper struct {
+		Payload broadcastV5 `json:"payload"`
+	}
+	err = json.Unmarshal(hitResponseData, &wrapper)
 	logError(err)
+
+	broadcast := wrapper.Payload.toBroadcast()
 	log.Printf("Found broadcast info of show %s, broadcasted on %s", broadcast.Title, broadcast.StartISO)
 	return broadcast
+}
+
+// ensureItemsParam guarantees the v5.0 broadcast endpoint returns its sub-items.
+// The bare broadcast/{id} href returns an empty items array, which would leave
+// trim.go with nothing to cut (the news block and ads would slip through). The
+// API's ?items=N flag is a boolean "include items" switch rather than a cap -
+// any positive N returns the full set - so a generous value is safe.
+func ensureItemsParam(broadcastUrl string) string {
+	u, err := url.Parse(broadcastUrl)
+	if err != nil {
+		return broadcastUrl
+	}
+	q := u.Query()
+	if q.Get("items") == "" {
+		q.Set("items", "1000")
+	}
+	u.RawQuery = q.Encode()
+	return u.String()
 }
 
 func trim(str string) string {
@@ -198,8 +226,11 @@ func getOutputPath(destDir string, show Show) string {
 }
 
 func getDownloadUrl(show Show) string {
-	var shoutcastBaseUrl = "https://loopstream01.apa.at/?channel=fm4&id="
-	return shoutcastBaseUrl + show.Streams[0].LoopStreamID
+	// Canonical sound.orf.at stream URL for the loopStreamId, read from the
+	// v5.0 payload's urls/uriTemplates (cleaned of the RFC-6570 token suffix
+	// and pre-filled offset range by toBroadcast). Uses the per-station host
+	// (e.g. loopstreamfm4.apa.at) instead of the legacy global loopstream01.
+	return show.Streams[0].Progressive
 }
 
 // getSegmentUrl extends the stream download URL with the loopstream range

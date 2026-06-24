@@ -24,7 +24,7 @@ func TestSearchBroadcastUrl(t *testing.T) {
 	)
 
 	got := SearchBroadcastUrls("Swound Sound")
-	want := []string{"https://audioapi.orf.at/fm4/api/json/4.0/broadcast/4SS/20220806"}
+	want := []string{"https://audioapi.orf.at/fm4/api/json/5.0/broadcast/25255"}
 
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("got %q want %q", got, want)

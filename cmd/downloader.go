@@ -52,6 +52,10 @@ func downloadSegment(url string, filename string, out io.Writer) {
 
 	req, err := http.NewRequest("GET", url, nil)
 	logError(err)
+	// The loopstream backend expects the sound.orf.at frontend as the origin.
+	// The v5.0 urls.progressive also embeds referer=sound.orf.at as a query
+	// param, but the header is the one the server actually honours.
+	req.Header.Set("Referer", "https://sound.orf.at/")
 	resp, err := http.DefaultClient.Do(req)
 	logError(err)
 
