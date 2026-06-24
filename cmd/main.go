@@ -34,8 +34,11 @@ func main() {
 	showPtr := downloadCmd.String("show", "Davidecks", "Show name")
 	destDirPtr := downloadCmd.String("out-base-dir", "./music", "Location of your shows")
 
+	urlCmd := flag.NewFlagSet("url", flag.ExitOnError)
+	destDirUrlPtr := urlCmd.String("out-base-dir", "./music", "Location of your shows")
+
 	if len(os.Args) < 2 {
-		fmt.Println("expected 'download' or 'search' subcommands")
+		fmt.Println("expected 'download', 'url' or 'search' subcommands")
 		os.Exit(1)
 	}
 
@@ -48,11 +51,23 @@ func main() {
 		log.Println("  out-base-dir:", *destDirPtr)
 		log.Println("  tail:", downloadCmd.Args())
 		Download(*showPtr, *destDirPtr)
+	case "url":
+		_ = urlCmd.Parse(os.Args[2:])
+		if len(urlCmd.Args()) < 1 {
+			log.Fatal("subcommand 'url' expects a sound.orf.at Sendung URL " +
+				"(https://sound.orf.at/radio/fm4/sendung/42628/davidecks) " +
+				"or a programKey (e.g. 4DD)")
+		}
+		showRef := urlCmd.Arg(0)
+		log.Println("subcommand 'url'")
+		log.Println("  show:", showRef)
+		log.Println("  out-base-dir:", *destDirUrlPtr)
+		DownloadByUrl(showRef, *destDirUrlPtr)
 	case "search":
 		_ = searchCmd.Parse(os.Args[2:])
 		SearchBroadcastUrls(*searchQuery)
 	default:
-		log.Println("expected 'download' or 'search' subcommands")
+		log.Println("expected 'download', 'url' or 'search' subcommands")
 		os.Exit(1)
 	}
 }
@@ -61,6 +76,24 @@ func Download(showSearch string, destDir string) {
 
 	broadcastUrls := SearchBroadcastUrls(showSearch)
 
+	downloadBroadcasts(broadcastUrls, destDir)
+}
+
+// DownloadByUrl downloads all available episodes of the show referenced by
+// either a sound.orf.at Sendung URL (e.g.
+// https://sound.orf.at/radio/fm4/sendung/42628/davidecks) or a stable
+// programKey (e.g. "4DD"). Every episode still in the 30-day on-demand window
+// is fetched. Prefer the programKey for recurring downloads: a URL's episode
+// id ages out of the window after 30 days, a programKey does not.
+func DownloadByUrl(showRef string, destDir string) {
+
+	broadcastUrls := ResolveBroadcastUrls(showRef)
+
+	downloadBroadcasts(broadcastUrls, destDir)
+}
+
+func downloadBroadcasts(broadcastUrls []string, destDir string) {
+
 	for _, broadcastUrl := range broadcastUrls {
 
 		broadcast := getBroadcast(broadcastUrl)
@@ -68,10 +101,19 @@ func Download(showSearch string, destDir string) {
 		show := createShow(broadcast)
 
 		if len(show.Streams) > 0 {
-			mp3Path := DownloadFile(
-				getDownloadUrl(show),
-				getOutputPath(destDir, show),
-				getFileName(show))
+			outDir := getOutputPath(destDir, show)
+			fileName := getFileName(show)
+
+			var mp3Path string
+			if segs := contentSegments(show); len(segs) > 0 {
+				urls := make([]string, len(segs))
+				for i, seg := range segs {
+					urls[i] = getSegmentUrl(show, seg)
+				}
+				mp3Path = DownloadFileSegments(urls, outDir, fileName)
+			} else {
+				mp3Path = DownloadFile(getDownloadUrl(show), outDir, fileName)
+			}
 
 			imagePath := saveImage(destDir, show)
 			writeId3Tag(mp3Path, imagePath, show)
@@ -91,6 +133,7 @@ func createShow(broadcast Broadcast) Show {
 		BroadcastDay:   strconv.Itoa(broadcast.BroadcastDay),
 		Images:         broadcast.Images,
 		Streams:        broadcast.Streams,
+		Items:          broadcast.Items,
 		Year:           getYear(broadcast),
 	}
 }
@@ -157,6 +200,13 @@ func getOutputPath(destDir string, show Show) string {
 func getDownloadUrl(show Show) string {
 	var shoutcastBaseUrl = "https://loopstream01.apa.at/?channel=fm4&id="
 	return shoutcastBaseUrl + show.Streams[0].LoopStreamID
+}
+
+// getSegmentUrl extends the stream download URL with the loopstream range
+// params so the server returns only the given millisecond slice.
+func getSegmentUrl(show Show, seg segment) string {
+	return fmt.Sprintf("%s&offset=%d&offsetende=%d",
+		getDownloadUrl(show), seg.offset, seg.offsetEnd)
 }
 
 func logError(err error) {

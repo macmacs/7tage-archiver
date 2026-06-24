@@ -8,4 +8,5 @@ type Show struct {
 	Year           string
 	Images         []Images
 	Streams        []Streams
+	Items          []Items
 }

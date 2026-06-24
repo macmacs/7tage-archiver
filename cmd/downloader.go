@@ -9,8 +9,14 @@ import (
 )
 
 func DownloadFile(url string, outDir string, filename string) string {
-	log.Printf("Downloading file %s from %s.\n", filename, url)
+	return DownloadFileSegments([]string{url}, outDir, filename)
+}
 
+// DownloadFileSegments downloads each url in order and writes them, joined, to
+// a single file. With one url it behaves like a plain download; with several it
+// concatenates the slices (used to stitch together the show content around the
+// removed news and ad segments).
+func DownloadFileSegments(urls []string, outDir string, filename string) string {
 	err := makeDirectoryIfNotExisting(outDir)
 	logError(err)
 
@@ -25,8 +31,24 @@ func DownloadFile(url string, outDir string, filename string) string {
 	}
 
 	out, err := os.Create(path)
-
 	logError(err)
+
+	defer func(out *os.File) {
+		err := out.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}(out)
+
+	for _, url := range urls {
+		downloadSegment(url, filename, out)
+	}
+
+	return path
+}
+
+func downloadSegment(url string, filename string, out io.Writer) {
+	log.Printf("Downloading file %s from %s.\n", filename, url)
 
 	req, err := http.NewRequest("GET", url, nil)
 	logError(err)
@@ -40,13 +62,6 @@ func DownloadFile(url string, outDir string, filename string) string {
 		}
 	}(resp.Body)
 
-	defer func(out *os.File) {
-		err := out.Close()
-		if err != nil {
-			log.Fatal(err)
-		}
-	}(out)
-
 	bar := progressbar.DefaultBytes(
 		resp.ContentLength,
 		"Downloading",
@@ -54,6 +69,4 @@ func DownloadFile(url string, outDir string, filename string) string {
 
 	_, err = io.Copy(io.MultiWriter(out, bar), resp.Body)
 	logError(err)
-
-	return path
 }
