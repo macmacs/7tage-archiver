@@ -13,7 +13,7 @@ and the loopstream range download (no re-encoding), so the resulting `mp3`
 contains just the program.
 
 ```bash
-Usage of bin/fm4-archiver:
+Usage of bin/7tage-archiver:
 
 download
   -out-base-dir string
