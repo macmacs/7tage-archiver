@@ -7,6 +7,11 @@ Sendung URL, or from a stable `programKey` (e.g. `4DD`). Prefer the programKey
 for recurring downloads: a Sendung URL points at a single episode whose id ages
 out of the 30-day window, while a programKey stays valid.
 
+Only the actual show content is saved. ORF-injected segments such as the leading
+news block and mid-show ads are stripped using the broadcast's segment metadata
+and the loopstream range download (no re-encoding), so the resulting `mp3`
+contains just the program.
+
 ```bash
 Usage of bin/fm4-archiver:
 

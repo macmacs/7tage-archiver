@@ -101,10 +101,19 @@ func downloadBroadcasts(broadcastUrls []string, destDir string) {
 		show := createShow(broadcast)
 
 		if len(show.Streams) > 0 {
-			mp3Path := DownloadFile(
-				getDownloadUrl(show),
-				getOutputPath(destDir, show),
-				getFileName(show))
+			outDir := getOutputPath(destDir, show)
+			fileName := getFileName(show)
+
+			var mp3Path string
+			if segs := contentSegments(show); len(segs) > 0 {
+				urls := make([]string, len(segs))
+				for i, seg := range segs {
+					urls[i] = getSegmentUrl(show, seg)
+				}
+				mp3Path = DownloadFileSegments(urls, outDir, fileName)
+			} else {
+				mp3Path = DownloadFile(getDownloadUrl(show), outDir, fileName)
+			}
 
 			imagePath := saveImage(destDir, show)
 			writeId3Tag(mp3Path, imagePath, show)
@@ -124,6 +133,7 @@ func createShow(broadcast Broadcast) Show {
 		BroadcastDay:   strconv.Itoa(broadcast.BroadcastDay),
 		Images:         broadcast.Images,
 		Streams:        broadcast.Streams,
+		Items:          broadcast.Items,
 		Year:           getYear(broadcast),
 	}
 }
@@ -190,6 +200,13 @@ func getOutputPath(destDir string, show Show) string {
 func getDownloadUrl(show Show) string {
 	var shoutcastBaseUrl = "https://loopstream01.apa.at/?channel=fm4&id="
 	return shoutcastBaseUrl + show.Streams[0].LoopStreamID
+}
+
+// getSegmentUrl extends the stream download URL with the loopstream range
+// params so the server returns only the given millisecond slice.
+func getSegmentUrl(show Show, seg segment) string {
+	return fmt.Sprintf("%s&offset=%d&offsetende=%d",
+		getDownloadUrl(show), seg.offset, seg.offsetEnd)
 }
 
 func logError(err error) {
