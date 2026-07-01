@@ -4,8 +4,8 @@ go 1.25.0
 
 require (
 	github.com/bogem/id3v2 v1.2.0
-	github.com/jarcoal/httpmock v1.4.1
-	github.com/schollz/progressbar/v3 v3.19.0
+	github.com/jarcoal/httpmock v1.4.2
+	github.com/schollz/progressbar/v3 v3.19.1
 )
 
 require (
