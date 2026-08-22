@@ -66,11 +66,28 @@ func downloadSegment(url string, filename string, out io.Writer) {
 		}
 	}(resp.Body)
 
-	bar := progressbar.DefaultBytes(
-		resp.ContentLength,
-		"Downloading",
-	)
+	var w io.Writer = out
+	if isTerminal(os.Stderr) {
+		// Skip the bar when stderr is not a terminal (e.g. cron): the
+		// carriage-return rendering would only clutter the captured output.
+		bar := progressbar.DefaultBytes(
+			resp.ContentLength,
+			"Downloading",
+		)
+		w = io.MultiWriter(out, bar)
+	}
 
-	_, err = io.Copy(io.MultiWriter(out, bar), resp.Body)
+	_, err = io.Copy(w, resp.Body)
 	logError(err)
+}
+
+// isTerminal reports whether f is attached to a terminal, in which case a
+// progress bar can render; otherwise (pipes, cron captures, log files) it
+// returns false.
+func isTerminal(f *os.File) bool {
+	info, err := f.Stat()
+	if err != nil {
+		return false
+	}
+	return info.Mode()&os.ModeCharDevice != 0
 }
